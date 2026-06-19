@@ -40,6 +40,59 @@ Your job: Based on the user's intake answers, create a personalized, actionable 
 
 Keep it real. Keep it simple.`;
 
+function renderMarkdown(text) {
+  const lines = text.split("\n");
+  const elements = [];
+  let listBuffer = [];
+
+  const flushList = (key) => {
+    if (listBuffer.length > 0) {
+      elements.push(
+        <ul key={"list-" + key} style={{ margin: "8px 0 16px", paddingLeft: 20 }}>
+          {listBuffer.map((item, idx) => (
+            <li key={idx} style={{ marginBottom: 6, lineHeight: 1.6 }}>{formatInline(item)}</li>
+          ))}
+        </ul>
+      );
+      listBuffer = [];
+    }
+  };
+
+  function formatInline(str) {
+    const parts = str.split(/(\*\*[^*]+\*\*)/g);
+    return parts.map((part, i) => {
+      if (part.startsWith("**") && part.endsWith("**")) {
+        return <strong key={i} style={{ fontWeight: 700, color: "#fff" }}>{part.slice(2, -2)}</strong>;
+      }
+      return part;
+    });
+  }
+
+  lines.forEach((line, i) => {
+    const trimmed = line.trim();
+    if (trimmed.startsWith("## ")) {
+      flushList(i);
+      elements.push(<h3 key={i} style={{ fontSize: 17, fontWeight: 700, margin: "20px 0 10px", color: "#c9a8ff" }}>{formatInline(trimmed.slice(3))}</h3>);
+    } else if (trimmed.startsWith("# ")) {
+      flushList(i);
+      elements.push(<h2 key={i} style={{ fontSize: 19, fontWeight: 800, margin: "4px 0 14px" }}>{formatInline(trimmed.slice(2))}</h2>);
+    } else if (trimmed === "---") {
+      flushList(i);
+      elements.push(<hr key={i} style={{ border: "none", borderTop: "1px solid rgba(255,255,255,0.1)", margin: "18px 0" }} />);
+    } else if (trimmed.startsWith("- ") || trimmed.startsWith("* ")) {
+      listBuffer.push(trimmed.slice(2));
+    } else if (trimmed === "") {
+      flushList(i);
+      elements.push(<div key={i} style={{ height: 6 }} />);
+    } else {
+      flushList(i);
+      elements.push(<p key={i} style={{ margin: "0 0 10px", lineHeight: 1.7 }}>{formatInline(trimmed)}</p>);
+    }
+  });
+  flushList("end");
+  return elements;
+}
+
 export default function BenApp() {
   const [phase, setPhase] = useState("intro");
   const [currentQ, setCurrentQ] = useState(0);
@@ -135,105 +188,112 @@ export default function BenApp() {
   const nextLabel = currentQ < QUESTIONS.length - 1 ? "Next" : "Talk to Ben";
 
   return (
-    <div style={{ maxWidth: 680, margin: "0 auto", padding: "2rem 1rem", minHeight: "100vh" }}>
-      <div style={{ display: "flex", alignItems: "center", justifyContent: "space-between", marginBottom: "1.5rem" }}>
-        <a href="/" style={{ fontSize: 20, fontWeight: 700, color: "#fff", textDecoration: "none" }}>BenSimple.</a>
-        {phase === "chat" && (
-          <button onClick={reset} style={{ fontSize: 13, padding: "6px 14px", cursor: "pointer", background: "transparent", border: "1px solid rgba(255,255,255,0.2)", color: "#fff", borderRadius: 8 }}>
-            Start over
-          </button>
-        )}
-      </div>
-
-      {phase === "intro" && (
-        <div style={{ background: "rgba(255,255,255,0.04)", border: "1px solid rgba(255,255,255,0.1)", borderRadius: 20, padding: "1.5rem" }}>
-          <div style={{ display: "flex", gap: 12, alignItems: "flex-start", marginBottom: "1.25rem" }}>
-            <div style={{ width: 44, height: 44, borderRadius: "50%", background: "linear-gradient(135deg, #6366f1, #a855f7)", display: "flex", alignItems: "center", justifyContent: "center", fontSize: 18, flexShrink: 0 }}>B</div>
-            <div style={{ fontSize: 15, lineHeight: 1.7, whiteSpace: "pre-line" }}>{INTRO}</div>
-          </div>
-          <button onClick={() => setPhase("intake")} style={{ width: "100%", padding: "12px", fontSize: 15, cursor: "pointer", fontWeight: 700, background: "linear-gradient(90deg, #6366f1, #a855f7)", color: "#fff", border: "none", borderRadius: 999 }}>
-            Let's go
-          </button>
+    <div style={{ minHeight: "100vh", background: "#05060a" }}>
+      <div style={{ maxWidth: 720, margin: "0 auto", padding: "2rem 1.25rem" }}>
+        <div style={{ display: "flex", alignItems: "center", justifyContent: "space-between", marginBottom: "1.75rem" }}>
+          <a href="/" style={{ fontSize: 21, fontWeight: 800, color: "#fff", textDecoration: "none" }}>BenSimple<span style={{ color: "#a855f7" }}>.</span></a>
+          {phase === "chat" && (
+            <button onClick={reset} style={{ fontSize: 13, padding: "7px 16px", cursor: "pointer", background: "transparent", border: "1px solid rgba(255,255,255,0.2)", color: "#fff", borderRadius: 999, fontWeight: 600 }}>
+              Start over
+            </button>
+          )}
         </div>
-      )}
 
-      {phase === "intake" && (
-        <div>
-          <div style={{ marginBottom: "1rem" }}>
-            <div style={{ display: "flex", justifyContent: "space-between", fontSize: 12, color: "rgba(255,255,255,0.5)", marginBottom: 6 }}>
-              <span>Question {currentQ + 1} of {QUESTIONS.length}</span>
-              <span>{progress}% complete</span>
+        {phase === "intro" && (
+          <div style={{ background: "rgba(255,255,255,0.05)", border: "1px solid rgba(255,255,255,0.1)", borderRadius: 20, padding: "1.75rem", boxShadow: "0 0 60px rgba(168,85,247,0.08)" }}>
+            <div style={{ display: "flex", gap: 14, alignItems: "flex-start", marginBottom: "1.5rem" }}>
+              <div style={{ width: 46, height: 46, borderRadius: "50%", background: "linear-gradient(135deg, #6366f1, #a855f7)", display: "flex", alignItems: "center", justifyContent: "center", fontSize: 19, fontWeight: 700, flexShrink: 0, boxShadow: "0 0 24px rgba(168,85,247,0.4)" }}>B</div>
+              <div style={{ fontSize: 15.5, lineHeight: 1.75, whiteSpace: "pre-line", color: "rgba(255,255,255,0.9)" }}>{INTRO}</div>
             </div>
-            <div style={{ height: 4, background: "rgba(255,255,255,0.1)", borderRadius: 99 }}>
-              <div style={{ height: 4, background: "linear-gradient(90deg, #6366f1, #a855f7)", borderRadius: 99, width: progress + "%", transition: "width 0.3s" }} />
+            <button onClick={() => setPhase("intake")} style={{ width: "100%", padding: "14px", fontSize: 15.5, cursor: "pointer", fontWeight: 700, background: "linear-gradient(90deg, #6366f1, #a855f7)", color: "#fff", border: "none", borderRadius: 999, boxShadow: "0 0 30px rgba(168,85,247,0.35)" }}>
+              Let's go
+            </button>
+          </div>
+        )}
+
+        {phase === "intake" && (
+          <div>
+            <div style={{ marginBottom: "1.25rem" }}>
+              <div style={{ display: "flex", justifyContent: "space-between", fontSize: 12.5, color: "rgba(255,255,255,0.5)", marginBottom: 8, fontWeight: 600 }}>
+                <span>Question {currentQ + 1} of {QUESTIONS.length}</span>
+                <span>{progress}% complete</span>
+              </div>
+              <div style={{ height: 5, background: "rgba(255,255,255,0.08)", borderRadius: 99 }}>
+                <div style={{ height: 5, background: "linear-gradient(90deg, #6366f1, #a855f7)", borderRadius: 99, width: progress + "%", transition: "width 0.3s" }} />
+              </div>
+            </div>
+            <div style={{ background: "rgba(255,255,255,0.05)", border: "1px solid rgba(255,255,255,0.1)", borderRadius: 20, padding: "1.75rem" }}>
+              <p style={{ fontSize: 16, fontWeight: 700, marginBottom: 14, lineHeight: 1.5 }}>{QUESTIONS[currentQ].label}</p>
+              <textarea
+                value={inputVal}
+                onChange={(e) => setInputVal(e.target.value)}
+                placeholder={QUESTIONS[currentQ].placeholder}
+                rows={4}
+                style={{ width: "100%", resize: "vertical", fontSize: 14.5, padding: "12px 14px", boxSizing: "border-box", borderRadius: 12, border: "1px solid rgba(255,255,255,0.15)", background: "rgba(0,0,0,0.35)", color: "#fff", lineHeight: 1.6 }}
+                autoFocus
+              />
+              <div style={{ display: "flex", justifyContent: "flex-end", marginTop: 14 }}>
+                <button onClick={handleAnswer} disabled={!inputVal.trim()} style={{ padding: "11px 28px", fontSize: 14.5, cursor: inputVal.trim() ? "pointer" : "not-allowed", opacity: inputVal.trim() ? 1 : 0.5, background: "linear-gradient(90deg, #6366f1, #a855f7)", color: "#fff", border: "none", borderRadius: 999, fontWeight: 700 }}>
+                  {nextLabel}
+                </button>
+              </div>
             </div>
           </div>
-          <div style={{ background: "rgba(255,255,255,0.04)", border: "1px solid rgba(255,255,255,0.1)", borderRadius: 20, padding: "1.5rem" }}>
-            <p style={{ fontSize: 15, fontWeight: 600, marginBottom: 12, lineHeight: 1.5 }}>{QUESTIONS[currentQ].label}</p>
-            <textarea
-              value={inputVal}
-              onChange={(e) => setInputVal(e.target.value)}
-              placeholder={QUESTIONS[currentQ].placeholder}
-              rows={4}
-              style={{ width: "100%", resize: "vertical", fontSize: 14, padding: "10px 12px", boxSizing: "border-box", borderRadius: 10, border: "1px solid rgba(255,255,255,0.15)", background: "rgba(0,0,0,0.3)", color: "#fff" }}
-              autoFocus
-            />
-            <div style={{ display: "flex", justifyContent: "flex-end", marginTop: 12 }}>
-              <button onClick={handleAnswer} disabled={!inputVal.trim()} style={{ padding: "10px 24px", fontSize: 14, cursor: inputVal.trim() ? "pointer" : "not-allowed", opacity: inputVal.trim() ? 1 : 0.5, background: "linear-gradient(90deg, #6366f1, #a855f7)", color: "#fff", border: "none", borderRadius: 999, fontWeight: 600 }}>
-                {nextLabel}
+        )}
+
+        {phase === "processing" && (
+          <div style={{ textAlign: "center", padding: "4rem 1rem" }}>
+            <div style={{ width: 46, height: 46, borderRadius: "50%", background: "linear-gradient(135deg, #6366f1, #a855f7)", display: "flex", alignItems: "center", justifyContent: "center", fontSize: 19, fontWeight: 700, margin: "0 auto 20px", boxShadow: "0 0 30px rgba(168,85,247,0.5)" }}>B</div>
+            <p style={{ fontSize: 17, fontWeight: 700 }}>Ben is working on your plan...</p>
+            <p style={{ fontSize: 14, color: "rgba(255,255,255,0.5)", marginTop: 6 }}>This takes about 10 seconds.</p>
+          </div>
+        )}
+
+        {phase === "chat" && (
+          <div>
+            <div style={{ display: "flex", flexDirection: "column", gap: 18, marginBottom: "1.25rem" }}>
+              {messages.filter(function (m) { return !m.hidden; }).map((m, i) => (
+                <div key={i} style={{ display: "flex", gap: 12, alignItems: "flex-start", flexDirection: m.role === "user" ? "row-reverse" : "row" }}>
+                  {m.role === "assistant" && (
+                    <div style={{ width: 34, height: 34, borderRadius: "50%", background: "linear-gradient(135deg, #6366f1, #a855f7)", display: "flex", alignItems: "center", justifyContent: "center", fontSize: 14, fontWeight: 700, flexShrink: 0 }}>B</div>
+                  )}
+                  <div style={{
+                    maxWidth: "82%",
+                    background: m.role === "user" ? "linear-gradient(90deg, #6366f1, #a855f7)" : "rgba(255,255,255,0.05)",
+                    border: m.role === "user" ? "none" : "1px solid rgba(255,255,255,0.1)",
+                    borderRadius: 18,
+                    padding: "14px 18px",
+                    fontSize: 14.5,
+                    color: "rgba(255,255,255,0.92)",
+                  }}>
+                    {m.role === "assistant" ? renderMarkdown(m.content) : <span style={{ lineHeight: 1.6 }}>{m.content}</span>}
+                  </div>
+                </div>
+              ))}
+              {loading && (
+                <div style={{ display: "flex", gap: 12, alignItems: "center" }}>
+                  <div style={{ width: 34, height: 34, borderRadius: "50%", background: "linear-gradient(135deg, #6366f1, #a855f7)", display: "flex", alignItems: "center", justifyContent: "center", fontSize: 14, fontWeight: 700 }}>B</div>
+                  <div style={{ fontSize: 14, color: "rgba(255,255,255,0.5)" }}>Ben is thinking...</div>
+                </div>
+              )}
+              <div ref={bottomRef} />
+            </div>
+            <div style={{ display: "flex", gap: 10, position: "sticky", bottom: 16 }}>
+              <textarea
+                value={chatInput}
+                onChange={(e) => setChatInput(e.target.value)}
+                onKeyDown={(e) => { if (e.key === "Enter" && !e.shiftKey) { e.preventDefault(); sendChat(); } }}
+                placeholder="Ask Ben anything..."
+                rows={2}
+                style={{ flex: 1, resize: "none", fontSize: 14.5, padding: "12px 14px", borderRadius: 14, border: "1px solid rgba(255,255,255,0.15)", background: "rgba(0,0,0,0.4)", color: "#fff" }}
+              />
+              <button onClick={sendChat} disabled={!chatInput.trim() || loading} style={{ padding: "12px 22px", fontSize: 14.5, cursor: "pointer", background: "linear-gradient(90deg, #6366f1, #a855f7)", color: "#fff", border: "none", borderRadius: 14, fontWeight: 700 }}>
+                Send
               </button>
             </div>
           </div>
-        </div>
-      )}
-
-      {phase === "processing" && (
-        <div style={{ textAlign: "center", padding: "3rem 1rem" }}>
-          <p style={{ fontSize: 16, fontWeight: 600 }}>Ben is working on your plan...</p>
-          <p style={{ fontSize: 14, color: "rgba(255,255,255,0.5)" }}>This takes about 10 seconds.</p>
-        </div>
-      )}
-
-      {phase === "chat" && (
-        <div>
-          <div style={{ display: "flex", flexDirection: "column", gap: 16, marginBottom: "1rem" }}>
-            {messages.filter(function (m) { return !m.hidden; }).map((m, i) => (
-              <div key={i} style={{ display: "flex", gap: 10, alignItems: "flex-start", flexDirection: m.role === "user" ? "row-reverse" : "row" }}>
-                {m.role === "assistant" && (
-                  <div style={{ width: 32, height: 32, borderRadius: "50%", background: "linear-gradient(135deg, #6366f1, #a855f7)", display: "flex", alignItems: "center", justifyContent: "center", fontSize: 13, flexShrink: 0 }}>B</div>
-                )}
-                <div style={{
-                  maxWidth: "80%",
-                  background: m.role === "user" ? "linear-gradient(90deg, #6366f1, #a855f7)" : "rgba(255,255,255,0.05)",
-                  border: m.role === "user" ? "none" : "1px solid rgba(255,255,255,0.1)",
-                  borderRadius: 16,
-                  padding: "10px 14px",
-                  fontSize: 14,
-                  lineHeight: 1.7,
-                  whiteSpace: "pre-wrap",
-                }}>
-                  {m.content}
-                </div>
-              </div>
-            ))}
-            {loading && <div style={{ fontSize: 14, color: "rgba(255,255,255,0.5)" }}>Ben is thinking...</div>}
-            <div ref={bottomRef} />
-          </div>
-          <div style={{ display: "flex", gap: 8 }}>
-            <textarea
-              value={chatInput}
-              onChange={(e) => setChatInput(e.target.value)}
-              onKeyDown={(e) => { if (e.key === "Enter" && !e.shiftKey) { e.preventDefault(); sendChat(); } }}
-              placeholder="Ask Ben anything..."
-              rows={2}
-              style={{ flex: 1, resize: "none", fontSize: 14, padding: "10px 12px", borderRadius: 10, border: "1px solid rgba(255,255,255,0.15)", background: "rgba(0,0,0,0.3)", color: "#fff" }}
-            />
-            <button onClick={sendChat} disabled={!chatInput.trim() || loading} style={{ padding: "10px 18px", fontSize: 14, cursor: "pointer", background: "linear-gradient(90deg, #6366f1, #a855f7)", color: "#fff", border: "none", borderRadius: 10, fontWeight: 600 }}>
-              Send
-            </button>
-          </div>
-        </div>
-      )}
+        )}
+      </div>
     </div>
   );
 }
