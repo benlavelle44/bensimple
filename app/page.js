@@ -13,7 +13,6 @@ export default function Home() {
 
   return (
     <div style={{ minHeight: "100vh", position: "relative", overflow: "hidden" }}>
-      {/* Animated background glow */}
       <div
         style={{
           position: "absolute",
@@ -22,16 +21,15 @@ export default function Home() {
           transform: "translateX(-50%)",
           width: "140%",
           height: "600px",
-          background: `radial-gradient(ellipse at center, hsla(${glow}, 80%, 55%, 0.25), transparent 70%)`,
+          background: "radial-gradient(ellipse at center, hsla(" + glow + ", 80%, 55%, 0.25), transparent 70%)",
           filter: "blur(60px)",
           pointerEvents: "none",
         }}
       />
 
-      {/* Nav */}
       <nav style={{ display: "flex", justifyContent: "space-between", alignItems: "center", padding: "24px 32px", position: "relative", zIndex: 2 }}>
         <div style={{ fontSize: 20, fontWeight: 700, letterSpacing: "-0.5px" }}>BenSimple.</div>
-        <a href="#start" style={{
+        <a href="/app" style={{
           background: "#fff",
           color: "#05060a",
           padding: "10px 22px",
@@ -40,11 +38,10 @@ export default function Home() {
           fontWeight: 600,
           textDecoration: "none",
         }}>
-          Ask Ben →
+          Ask Ben
         </a>
       </nav>
 
-      {/* Hero */}
       <div style={{
         position: "relative",
         zIndex: 2,
@@ -63,7 +60,7 @@ export default function Home() {
           marginBottom: 24,
           color: "#a3b8ff",
         }}>
-          ✦ Powered by AI that actually finishes things
+          Powered by AI that actually finishes things
         </div>
 
         <h1 style={{
@@ -75,7 +72,7 @@ export default function Home() {
         }}>
           It was{" "}
           <span style={{
-            background: `linear-gradient(90deg, hsl(${glow}, 90%, 65%), hsl(${(glow + 80) % 360}, 90%, 65%))`,
+            background: "linear-gradient(90deg, hsl(" + glow + ", 90%, 65%), hsl(" + ((glow + 80) % 360) + ", 90%, 65%))",
             WebkitBackgroundClip: "text",
             WebkitTextFillColor: "transparent",
           }}>
@@ -90,8 +87,7 @@ export default function Home() {
           You just had to ask Ben.
         </p>
 
-        
-          id="start"
+        <a
           href="/app"
           style={{
             display: "inline-block",
@@ -105,7 +101,7 @@ export default function Home() {
             boxShadow: "0 0 40px rgba(168, 85, 247, 0.5)",
           }}
         >
-          Ask Ben Right Now &rarr;
+          Ask Ben Right Now
         </a>
 
         <p style={{ fontSize: 13, color: "rgba(255,255,255,0.4)", marginTop: 16 }}>
@@ -113,7 +109,6 @@ export default function Home() {
         </p>
       </div>
 
-      {/* Feature strip */}
       <div style={{
         position: "relative",
         zIndex: 2,
@@ -127,7 +122,7 @@ export default function Home() {
         {[
           { t: "Tell Ben anything", d: "A business idea, a life problem, a half-finished dream. Type it in plain language." },
           { t: "Ben builds the plan", d: "Real steps. No fluff. No cheerleading. Just what to do next." },
-          { t: "Ben does the work", d: "Websites, research, automations — Ben's agents handle what you can't." },
+          { t: "Ben does the work", d: "Websites, research, automations - Ben's agents handle what you can't." },
         ].map((f, i) => (
           <div key={i} style={{
             background: "rgba(255,255,255,0.04)",
@@ -142,7 +137,7 @@ export default function Home() {
       </div>
 
       <footer style={{ textAlign: "center", padding: "30px 20px", color: "rgba(255,255,255,0.3)", fontSize: 13, position: "relative", zIndex: 2 }}>
-        © 2026 BenSimple. — Just ask Ben.
+        2026 BenSimple. - Just ask Ben.
       </footer>
     </div>
   );
