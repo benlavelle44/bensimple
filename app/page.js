@@ -82,10 +82,11 @@ export default function Home() {
         }}>
           It's{" "}
           <span style={{
-            background: "linear-gradient(90deg, hsl(" + glow + ", 90%, 65%), hsl(" + ((glow + 80) % 360) + ", 90%, 65%))",
+            backgroundImage: "linear-gradient(90deg, hsl(" + glow + ", 90%, 65%), hsl(" + ((glow + 80) % 360) + ", 90%, 65%))",
+            backgroundClip: "text",
             WebkitBackgroundClip: "text",
+            color: "transparent",
             WebkitTextFillColor: "transparent",
-            display: "inline-block",
           }}>
             BenSimple.
           </span>
