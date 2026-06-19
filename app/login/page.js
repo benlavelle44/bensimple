@@ -23,14 +23,14 @@ export default function LoginPage() {
         setMessage(error.message);
       } else {
         setMessage("Account created. Redirecting...");
-        window.location.href = "/app";
+        window.location.href = "/dashboard";
       }
     } else {
       const { error } = await supabase.auth.signInWithPassword({ email, password });
       if (error) {
         setMessage(error.message);
       } else {
-        window.location.href = "/app";
+        window.location.href = "/dashboard";
       }
     }
     setLoading(false);
