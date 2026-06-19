@@ -79,18 +79,16 @@ export default function BenApp() {
   };
 
   const runIntake = async (ans) => {
-    const userContent = `Here are my intake answers:
-
-Dream/Project/Problem: ${ans.dream}
-Background: ${ans.background}
-Current Financial Resources: ${ans.resources_now}
-Future Financial Resources: ${ans.resources_future}
-Devices & Platforms Available: ${ans.tools}
-Time & Effort Willing to Spend: ${ans.effort}
-End Goal: ${ans.endgoal}
-How Much I've Already Planned: ${ans.vision}
-
-Based on all of this, give me my personalized plan.`;
+    const userContent = "Here are my intake answers:\n\n" +
+      "Dream/Project/Problem: " + ans.dream + "\n" +
+      "Background: " + ans.background + "\n" +
+      "Current Financial Resources: " + ans.resources_now + "\n" +
+      "Future Financial Resources: " + ans.resources_future + "\n" +
+      "Devices & Platforms Available: " + ans.tools + "\n" +
+      "Time & Effort Willing to Spend: " + ans.effort + "\n" +
+      "End Goal: " + ans.endgoal + "\n" +
+      "How Much I've Already Planned: " + ans.vision + "\n\n" +
+      "Based on all of this, give me my personalized plan.";
 
     try {
       const reply = await callBen([{ role: "user", content: userContent }]);
@@ -99,7 +97,7 @@ Based on all of this, give me my personalized plan.`;
         { role: "assistant", content: reply },
       ]);
       setPhase("chat");
-    } catch {
+    } catch (e) {
       setMessages([{ role: "assistant", content: "Something went wrong connecting to Ben. Please try again." }]);
       setPhase("chat");
     }
@@ -113,7 +111,129 @@ Based on all of this, give me my personalized plan.`;
     setChatInput("");
     setLoading(true);
     try {
-      const apiMessages = updated.filter((m) => !m.hidden).map((m) => ({ role: m.role, content: m.content }));
+      const apiMessages = updated.filter(function (m) { return !m.hidden; }).map(function (m) {
+        return { role: m.role, content: m.content };
+      });
       const reply = await callBen(apiMessages);
       setMessages([...updated, { role: "assistant", content: reply }]);
-    } catch {
+    } catch (e) {
+      setMessages([...updated, { role: "assistant", content: "Connection issue. Try again." }]);
+    }
+    setLoading(false);
+  };
+
+  const reset = () => {
+    setPhase("intro");
+    setCurrentQ(0);
+    setAnswers({});
+    setInputVal("");
+    setMessages([]);
+    setChatInput("");
+  };
+
+  const progress = Math.round((currentQ / QUESTIONS.length) * 100);
+  const nextLabel = currentQ < QUESTIONS.length - 1 ? "Next" : "Talk to Ben";
+
+  return (
+    <div style={{ maxWidth: 680, margin: "0 auto", padding: "2rem 1rem", minHeight: "100vh" }}>
+      <div style={{ display: "flex", alignItems: "center", justifyContent: "space-between", marginBottom: "1.5rem" }}>
+        <a href="/" style={{ fontSize: 20, fontWeight: 700, color: "#fff", textDecoration: "none" }}>BenSimple.</a>
+        {phase === "chat" && (
+          <button onClick={reset} style={{ fontSize: 13, padding: "6px 14px", cursor: "pointer", background: "transparent", border: "1px solid rgba(255,255,255,0.2)", color: "#fff", borderRadius: 8 }}>
+            Start over
+          </button>
+        )}
+      </div>
+
+      {phase === "intro" && (
+        <div style={{ background: "rgba(255,255,255,0.04)", border: "1px solid rgba(255,255,255,0.1)", borderRadius: 20, padding: "1.5rem" }}>
+          <div style={{ display: "flex", gap: 12, alignItems: "flex-start", marginBottom: "1.25rem" }}>
+            <div style={{ width: 44, height: 44, borderRadius: "50%", background: "linear-gradient(135deg, #6366f1, #a855f7)", display: "flex", alignItems: "center", justifyContent: "center", fontSize: 18, flexShrink: 0 }}>B</div>
+            <div style={{ fontSize: 15, lineHeight: 1.7, whiteSpace: "pre-line" }}>{INTRO}</div>
+          </div>
+          <button onClick={() => setPhase("intake")} style={{ width: "100%", padding: "12px", fontSize: 15, cursor: "pointer", fontWeight: 700, background: "linear-gradient(90deg, #6366f1, #a855f7)", color: "#fff", border: "none", borderRadius: 999 }}>
+            Let's go
+          </button>
+        </div>
+      )}
+
+      {phase === "intake" && (
+        <div>
+          <div style={{ marginBottom: "1rem" }}>
+            <div style={{ display: "flex", justifyContent: "space-between", fontSize: 12, color: "rgba(255,255,255,0.5)", marginBottom: 6 }}>
+              <span>Question {currentQ + 1} of {QUESTIONS.length}</span>
+              <span>{progress}% complete</span>
+            </div>
+            <div style={{ height: 4, background: "rgba(255,255,255,0.1)", borderRadius: 99 }}>
+              <div style={{ height: 4, background: "linear-gradient(90deg, #6366f1, #a855f7)", borderRadius: 99, width: progress + "%", transition: "width 0.3s" }} />
+            </div>
+          </div>
+          <div style={{ background: "rgba(255,255,255,0.04)", border: "1px solid rgba(255,255,255,0.1)", borderRadius: 20, padding: "1.5rem" }}>
+            <p style={{ fontSize: 15, fontWeight: 600, marginBottom: 12, lineHeight: 1.5 }}>{QUESTIONS[currentQ].label}</p>
+            <textarea
+              value={inputVal}
+              onChange={(e) => setInputVal(e.target.value)}
+              placeholder={QUESTIONS[currentQ].placeholder}
+              rows={4}
+              style={{ width: "100%", resize: "vertical", fontSize: 14, padding: "10px 12px", boxSizing: "border-box", borderRadius: 10, border: "1px solid rgba(255,255,255,0.15)", background: "rgba(0,0,0,0.3)", color: "#fff" }}
+              autoFocus
+            />
+            <div style={{ display: "flex", justifyContent: "flex-end", marginTop: 12 }}>
+              <button onClick={handleAnswer} disabled={!inputVal.trim()} style={{ padding: "10px 24px", fontSize: 14, cursor: inputVal.trim() ? "pointer" : "not-allowed", opacity: inputVal.trim() ? 1 : 0.5, background: "linear-gradient(90deg, #6366f1, #a855f7)", color: "#fff", border: "none", borderRadius: 999, fontWeight: 600 }}>
+                {nextLabel}
+              </button>
+            </div>
+          </div>
+        </div>
+      )}
+
+      {phase === "processing" && (
+        <div style={{ textAlign: "center", padding: "3rem 1rem" }}>
+          <p style={{ fontSize: 16, fontWeight: 600 }}>Ben is working on your plan...</p>
+          <p style={{ fontSize: 14, color: "rgba(255,255,255,0.5)" }}>This takes about 10 seconds.</p>
+        </div>
+      )}
+
+      {phase === "chat" && (
+        <div>
+          <div style={{ display: "flex", flexDirection: "column", gap: 16, marginBottom: "1rem" }}>
+            {messages.filter(function (m) { return !m.hidden; }).map((m, i) => (
+              <div key={i} style={{ display: "flex", gap: 10, alignItems: "flex-start", flexDirection: m.role === "user" ? "row-reverse" : "row" }}>
+                {m.role === "assistant" && (
+                  <div style={{ width: 32, height: 32, borderRadius: "50%", background: "linear-gradient(135deg, #6366f1, #a855f7)", display: "flex", alignItems: "center", justifyContent: "center", fontSize: 13, flexShrink: 0 }}>B</div>
+                )}
+                <div style={{
+                  maxWidth: "80%",
+                  background: m.role === "user" ? "linear-gradient(90deg, #6366f1, #a855f7)" : "rgba(255,255,255,0.05)",
+                  border: m.role === "user" ? "none" : "1px solid rgba(255,255,255,0.1)",
+                  borderRadius: 16,
+                  padding: "10px 14px",
+                  fontSize: 14,
+                  lineHeight: 1.7,
+                  whiteSpace: "pre-wrap",
+                }}>
+                  {m.content}
+                </div>
+              </div>
+            ))}
+            {loading && <div style={{ fontSize: 14, color: "rgba(255,255,255,0.5)" }}>Ben is thinking...</div>}
+            <div ref={bottomRef} />
+          </div>
+          <div style={{ display: "flex", gap: 8 }}>
+            <textarea
+              value={chatInput}
+              onChange={(e) => setChatInput(e.target.value)}
+              onKeyDown={(e) => { if (e.key === "Enter" && !e.shiftKey) { e.preventDefault(); sendChat(); } }}
+              placeholder="Ask Ben anything..."
+              rows={2}
+              style={{ flex: 1, resize: "none", fontSize: 14, padding: "10px 12px", borderRadius: 10, border: "1px solid rgba(255,255,255,0.15)", background: "rgba(0,0,0,0.3)", color: "#fff" }}
+            />
+            <button onClick={sendChat} disabled={!chatInput.trim() || loading} style={{ padding: "10px 18px", fontSize: 14, cursor: "pointer", background: "linear-gradient(90deg, #6366f1, #a855f7)", color: "#fff", border: "none", borderRadius: 10, fontWeight: 600 }}>
+              Send
+            </button>
+          </div>
+        </div>
+      )}
+    </div>
+  );
+}
