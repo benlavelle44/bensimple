@@ -1,5 +1,6 @@
 "use client";
 import { useState, useRef, useEffect } from "react";
+import { supabase } from "../../lib/supabase";
 
 const INTRO = `Hey, I'm Ben.
 
@@ -94,6 +95,8 @@ function renderMarkdown(text) {
 }
 
 export default function BenApp() {
+  const [authChecked, setAuthChecked] = useState(false);
+  const [user, setUser] = useState(null);
   const [phase, setPhase] = useState("intro");
   const [currentQ, setCurrentQ] = useState(0);
   const [answers, setAnswers] = useState({});
@@ -101,7 +104,19 @@ export default function BenApp() {
   const [messages, setMessages] = useState([]);
   const [chatInput, setChatInput] = useState("");
   const [loading, setLoading] = useState(false);
+  const [projectId, setProjectId] = useState(null);
   const bottomRef = useRef(null);
+
+  useEffect(() => {
+    supabase.auth.getUser().then(({ data }) => {
+      if (!data.user) {
+        window.location.href = "/login";
+      } else {
+        setUser(data.user);
+        setAuthChecked(true);
+      }
+    });
+  }, []);
 
   useEffect(() => {
     bottomRef.current?.scrollIntoView({ behavior: "smooth" });
@@ -143,8 +158,38 @@ export default function BenApp() {
       "How Much I've Already Planned: " + ans.vision + "\n\n" +
       "Based on all of this, give me my personalized plan.";
 
+    const { data: project, error: projectError } = await supabase
+      .from("projects")
+      .insert({
+        user_id: user.id,
+        dream: ans.dream,
+        background: ans.background,
+        resources_now: ans.resources_now,
+        resources_future: ans.resources_future,
+        tools: ans.tools,
+        effort: ans.effort,
+        endgoal: ans.endgoal,
+        vision: ans.vision,
+      })
+      .select()
+      .single();
+
+    if (projectError) {
+      setMessages([{ role: "assistant", content: "Something went wrong saving your project. Please try again." }]);
+      setPhase("chat");
+      return;
+    }
+
+    setProjectId(project.id);
+
     try {
       const reply = await callBen([{ role: "user", content: userContent }]);
+
+      await supabase.from("messages").insert([
+        { project_id: project.id, role: "user", content: userContent },
+        { project_id: project.id, role: "assistant", content: reply },
+      ]);
+
       setMessages([
         { role: "user", content: userContent, hidden: true },
         { role: "assistant", content: reply },
@@ -168,6 +213,14 @@ export default function BenApp() {
         return { role: m.role, content: m.content };
       });
       const reply = await callBen(apiMessages);
+
+      if (projectId) {
+        await supabase.from("messages").insert([
+          { project_id: projectId, role: "user", content: userMsg.content },
+          { project_id: projectId, role: "assistant", content: reply },
+        ]);
+      }
+
       setMessages([...updated, { role: "assistant", content: reply }]);
     } catch (e) {
       setMessages([...updated, { role: "assistant", content: "Connection issue. Try again." }]);
@@ -182,7 +235,21 @@ export default function BenApp() {
     setInputVal("");
     setMessages([]);
     setChatInput("");
+    setProjectId(null);
   };
+
+  const handleLogout = async () => {
+    await supabase.auth.signOut();
+    window.location.href = "/";
+  };
+
+  if (!authChecked) {
+    return (
+      <div style={{ minHeight: "100vh", background: "#05060a", display: "flex", alignItems: "center", justifyContent: "center" }}>
+        <p style={{ color: "rgba(255,255,255,0.5)", fontSize: 14 }}>Loading...</p>
+      </div>
+    );
+  }
 
   const progress = Math.round((currentQ / QUESTIONS.length) * 100);
   const nextLabel = currentQ < QUESTIONS.length - 1 ? "Next" : "Talk to Ben";
@@ -192,11 +259,16 @@ export default function BenApp() {
       <div style={{ maxWidth: 720, margin: "0 auto", padding: "2rem 1.25rem" }}>
         <div style={{ display: "flex", alignItems: "center", justifyContent: "space-between", marginBottom: "1.75rem" }}>
           <a href="/" style={{ fontSize: 21, fontWeight: 800, color: "#fff", textDecoration: "none" }}>BenSimple<span style={{ color: "#a855f7" }}>.</span></a>
-          {phase === "chat" && (
-            <button onClick={reset} style={{ fontSize: 13, padding: "7px 16px", cursor: "pointer", background: "transparent", border: "1px solid rgba(255,255,255,0.2)", color: "#fff", borderRadius: 999, fontWeight: 600 }}>
-              Start over
+          <div style={{ display: "flex", gap: 8 }}>
+            {phase === "chat" && (
+              <button onClick={reset} style={{ fontSize: 13, padding: "7px 16px", cursor: "pointer", background: "transparent", border: "1px solid rgba(255,255,255,0.2)", color: "#fff", borderRadius: 999, fontWeight: 600 }}>
+                New project
+              </button>
+            )}
+            <button onClick={handleLogout} style={{ fontSize: 13, padding: "7px 16px", cursor: "pointer", background: "transparent", border: "1px solid rgba(255,255,255,0.2)", color: "rgba(255,255,255,0.6)", borderRadius: 999, fontWeight: 600 }}>
+              Log out
             </button>
-          )}
+          </div>
         </div>
 
         {phase === "intro" && (
