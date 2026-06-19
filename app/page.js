@@ -117,7 +117,7 @@ export default function Home() {
         </a>
 
         <p style={{ fontSize: 13, color: "rgba(255,255,255,0.4)", marginTop: 18 }}>
-          No credit card. No tech skills needed. Just answer a few questions.
+          Free to start. No tech skills needed. Just answer a few questions.
         </p>
       </div>
 
