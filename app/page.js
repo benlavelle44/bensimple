@@ -105,7 +105,7 @@ export default function Home() {
             boxShadow: "0 0 40px rgba(168, 85, 247, 0.5)",
           }}
         >
-          Ask Ben Right Now →
+          Ask Ben Right Now &rarr;
         </a>
 
         <p style={{ fontSize: 13, color: "rgba(255,255,255,0.4)", marginTop: 16 }}>
