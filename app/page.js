@@ -47,7 +47,7 @@ export default function Home() {
           }}>
             Log in
           </a>
-          <a href="/app" style={{
+          <a href="/login?mode=signup" style={{
             background: "#fff",
             color: "#05060a",
             padding: "10px 24px",
