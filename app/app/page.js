@@ -203,6 +203,10 @@ export default function BenApp() {
 
   const sendChat = async () => {
     if (!chatInput.trim() || loading) return;
+    if (messages.filter(function (m) { return !m.hidden; }).length >= 5) {
+      setMessages([...messages, { role: "assistant", content: "You've used your free messages with Ben. Upgrade is coming very soon to keep going — hang tight!" }]);
+      return;
+    }
     const userMsg = { role: "user", content: chatInput.trim() };
     const updated = [...messages, userMsg];
     setMessages(updated);
