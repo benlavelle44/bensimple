@@ -126,6 +126,10 @@ export default function ProjectPage() {
 
   const sendChat = async () => {
     if (!chatInput.trim() || loading) return;
+    if (messages.length >= 5) {
+      setMessages([...messages, { role: "assistant", content: "You've used your free messages with Ben. Upgrade is coming very soon to keep going — hang tight!" }]);
+      return;
+    }
     const userContent = chatInput.trim();
     const userMsg = { role: "user", content: userContent };
     const updated = [...messages, userMsg];
