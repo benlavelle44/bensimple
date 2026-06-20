@@ -1,13 +1,21 @@
 "use client";
-import { useState } from "react";
+import { useState, useEffect } from "react";
+import { useSearchParams } from "next/navigation";
 import { supabase } from "../../lib/supabase";
 
 export default function LoginPage() {
-  const [mode, setMode] = useState("signup");
+  const searchParams = useSearchParams();
+  const [mode, setMode] = useState("login");
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
   const [message, setMessage] = useState("");
   const [loading, setLoading] = useState(false);
+
+  useEffect(() => {
+    if (searchParams.get("mode") === "signup") {
+      setMode("signup");
+    }
+  }, [searchParams]);
 
   const handleSubmit = async () => {
     if (!email.trim() || !password.trim()) {
