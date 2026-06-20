@@ -52,7 +52,7 @@ export default function Dashboard() {
         <div style={{ display: "flex", alignItems: "center", justifyContent: "space-between", marginBottom: "2rem" }}>
           <a href="/" style={{ fontSize: 21, fontWeight: 800, color: "#fff", textDecoration: "none" }}>BenSimple<span style={{ color: "#a855f7" }}>.</span></a>
           <div style={{ display: "flex", gap: 8, alignItems: "center" }}>
-            <span style={{ fontSize: 13, color: "rgba(255,255,255,0.5)" }}>{user?.email}</span>
+            <a href="/account" style={{ fontSize: 13, color: "rgba(255,255,255,0.5)", textDecoration: "none" }}>{user?.email}</a>
             <button onClick={handleLogout} style={{ fontSize: 13, padding: "7px 16px", cursor: "pointer", background: "transparent", border: "1px solid rgba(255,255,255,0.2)", color: "rgba(255,255,255,0.6)", borderRadius: 999, fontWeight: 600 }}>
               Log out
             </button>
