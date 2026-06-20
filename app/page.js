@@ -38,17 +38,27 @@ export default function Home() {
 
       <nav style={{ display: "flex", justifyContent: "space-between", alignItems: "center", padding: "24px 32px", position: "relative", zIndex: 2, maxWidth: 1200, margin: "0 auto" }}>
         <div style={{ fontSize: 22, fontWeight: 800, letterSpacing: "-0.5px" }}>BenSimple<span style={{ color: "#a855f7" }}>.</span></div>
-        <a href="/app" style={{
-          background: "#fff",
-          color: "#05060a",
-          padding: "10px 24px",
-          borderRadius: "999px",
-          fontSize: 14,
-          fontWeight: 700,
-          textDecoration: "none",
-        }}>
-          Ask Ben
-        </a>
+        <div style={{ display: "flex", gap: 14, alignItems: "center" }}>
+          <a href="/login" style={{
+            color: "rgba(255,255,255,0.7)",
+            fontSize: 14,
+            fontWeight: 600,
+            textDecoration: "none",
+          }}>
+            Log in
+          </a>
+          <a href="/app" style={{
+            background: "#fff",
+            color: "#05060a",
+            padding: "10px 24px",
+            borderRadius: "999px",
+            fontSize: 14,
+            fontWeight: 700,
+            textDecoration: "none",
+          }}>
+            Ask Ben
+          </a>
+        </div>
       </nav>
 
       <div style={{
