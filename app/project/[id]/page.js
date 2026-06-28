@@ -71,6 +71,7 @@ export default function ProjectPage() {
   const projectId = params.id;
 
   const [authChecked, setAuthChecked] = useState(false);
+  const [subscriptionStatus, setSubscriptionStatus] = useState("free");
   const [project, setProject] = useState(null);
   const [messages, setMessages] = useState([]);
   const [chatInput, setChatInput] = useState("");
@@ -79,10 +80,18 @@ export default function ProjectPage() {
   const bottomRef = useRef(null);
 
   useEffect(() => {
-    supabase.auth.getUser().then(({ data }) => {
+    supabase.auth.getUser().then(async ({ data }) => {
       if (!data.user) {
         window.location.href = "/login";
       } else {
+        const { data: profile } = await supabase
+          .from("profiles")
+          .select("subscription_status")
+          .eq("id", data.user.id)
+          .single();
+        if (profile?.subscription_status) {
+          setSubscriptionStatus(profile.subscription_status);
+        }
         setAuthChecked(true);
         loadProject();
       }
@@ -126,8 +135,9 @@ export default function ProjectPage() {
 
   const sendChat = async () => {
     if (!chatInput.trim() || loading) return;
-    if (messages.length >= 5) {
-      setMessages([...messages, { role: "assistant", content: "You've used your free messages with Ben. Upgrade is coming very soon to keep going — hang tight!" }]);
+    const isPaid = subscriptionStatus === "pro" || subscriptionStatus === "business";
+    if (!isPaid && messages.length >= 5) {
+      setMessages([...messages, { role: "assistant", content: "You've used your free messages with Ben. Upgrade on your account page to keep going — unlimited messages, no caps." }]);
       return;
     }
     const userContent = chatInput.trim();
