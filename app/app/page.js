@@ -97,6 +97,7 @@ function renderMarkdown(text) {
 export default function BenApp() {
   const [authChecked, setAuthChecked] = useState(false);
   const [user, setUser] = useState(null);
+  const [subscriptionStatus, setSubscriptionStatus] = useState("free");
   const [phase, setPhase] = useState("intro");
   const [currentQ, setCurrentQ] = useState(0);
   const [answers, setAnswers] = useState({});
@@ -108,11 +109,19 @@ export default function BenApp() {
   const bottomRef = useRef(null);
 
   useEffect(() => {
-    supabase.auth.getUser().then(({ data }) => {
+    supabase.auth.getUser().then(async ({ data }) => {
       if (!data.user) {
         window.location.href = "/login";
       } else {
         setUser(data.user);
+        const { data: profile } = await supabase
+          .from("profiles")
+          .select("subscription_status")
+          .eq("id", data.user.id)
+          .single();
+        if (profile?.subscription_status) {
+          setSubscriptionStatus(profile.subscription_status);
+        }
         setAuthChecked(true);
       }
     });
@@ -203,8 +212,9 @@ export default function BenApp() {
 
   const sendChat = async () => {
     if (!chatInput.trim() || loading) return;
-    if (messages.filter(function (m) { return !m.hidden; }).length >= 5) {
-      setMessages([...messages, { role: "assistant", content: "You've used your free messages with Ben. Upgrade is coming very soon to keep going — hang tight!" }]);
+    const isPaid = subscriptionStatus === "pro" || subscriptionStatus === "business";
+    if (!isPaid && messages.filter(function (m) { return !m.hidden; }).length >= 5) {
+      setMessages([...messages, { role: "assistant", content: "You've used your free messages with Ben. Upgrade on your account page to keep going — unlimited messages, no caps." }]);
       return;
     }
     const userMsg = { role: "user", content: chatInput.trim() };
