@@ -2,44 +2,101 @@
 import { useState, useRef, useEffect } from "react";
 import { supabase } from "../../lib/supabase";
 
-const INTRO = `Hey, I'm Ben.
+const INTRO = `Hey. I'm Ben.
 
-I'm here to take whatever you're dreaming about, struggling with, or trying to build — and make it simple.
+I'm not going to ask you what your "goals" are or tell you that you can do anything you put your mind to.
 
-No jargon. No tech degree required. Just tell me what's going on and I'll walk you through every step.
+I'm going to ask you real questions. I need real answers. And then I'm going to build you a real plan.
 
-I'm going to ask you a few questions so I understand exactly where you're at. Then I'll get to work.
+No fluff. No cheerleading. Just the truth about where you are, where you want to go, and exactly what to do next.
 
-Ready?`;
+Ready to get into it?`;
 
 const QUESTIONS = [
-  { id: "dream", label: "What dream, project, or problem are you tackling right now?", placeholder: "E.g. I want to start a trucking business, fix my finances, build an app, get out of debt..." },
-  { id: "background", label: "Tell me a little about yourself — your background, experience, and what you've tried before.", placeholder: "E.g. I've worked retail for 10 years, never run a business, tried freelancing once..." },
-  { id: "resources_now", label: "What financial resources do you have available right now?", placeholder: "E.g. $500 savings, no income currently, a laptop and phone..." },
-  { id: "resources_future", label: "What financial resources will be coming in, and how consistent is that?", placeholder: "E.g. Starting a job next month, inconsistent freelance, disability income, nothing yet..." },
-  { id: "tools", label: "What platforms and devices do you have access to right now?", placeholder: "E.g. iPhone, Windows laptop, Gmail, Facebook, no subscriptions..." },
-  { id: "effort", label: "How much time and effort are you willing to put in?", placeholder: "E.g. A few hours a week, full time grind, just want it handled for me..." },
-  { id: "endgoal", label: "What does success look like to you? What's the end result you're after?", placeholder: "E.g. $3k/month income, a launched website, a business plan I can take to investors, peace of mind..." },
-  { id: "vision", label: "How much of this do you already have planned, mapped out, or envisioned?", placeholder: "E.g. Just an idea in my head, I have notes, I've tried before and failed, I have a rough plan..." },
+  {
+    id: "reality",
+    label: "Start here: What's actually going on in your life right now that made you open this?",
+    placeholder: "Don't give me the polished version. Tell me what's real — what's working, what isn't, what you're stressed about.",
+    followUp: "Give me more. What specifically is happening that made today the day you decided to do something about it?"
+  },
+  {
+    id: "dream",
+    label: "What are you trying to build, fix, or change? What's the actual thing you want to tackle?",
+    placeholder: "Business idea, money problem, career change, project stuck in your head — whatever it is, lay it out.",
+    followUp: "Be more specific. 'Make more money' isn't a target. What does that actually look like?"
+  },
+  {
+    id: "outcome",
+    label: "If this works perfectly — what does your life look like? Be specific, not inspirational.",
+    placeholder: "Not 'I want to be successful.' Tell me: what number, what situation, what feeling, what problem goes away?",
+    followUp: "Paint me a picture. What's different on a Tuesday morning if this works?"
+  },
+  {
+    id: "limitations",
+    label: "What's actually in the way? Be honest — money, time, skills, fear, something else?",
+    placeholder: "Name the real obstacles. The ones you haven't told anyone. That's what we plan around.",
+    followUp: "What's the biggest one? The thing that's stopped you before or that you're most worried about?"
+  },
+  {
+    id: "resources",
+    label: "What do you actually have to work with right now — money, time, tools, connections, skills?",
+    placeholder: "Give me real numbers and real tools. Not what you wish you had — what you have today.",
+    followUp: "Be more specific. How much time per week, actually? How much money can you actually put in?"
+  },
+  {
+    id: "execution",
+    label: "How do you actually work best? Hand-holding or just a map? Daily steps or big picture first?",
+    placeholder: "What approach have you actually followed through on before? What makes you quit?",
+    followUp: "Think about something you actually finished. What made that work when other things didn't?"
+  },
+  {
+    id: "vision",
+    label: "How much have you already thought this through? Notes, plans, previous attempts?",
+    placeholder: "Is this a brand new idea, something you've been circling for years, or something you already started and stalled on?",
+    followUp: "What's the furthest you've gotten with this before? What stopped you that time?"
+  },
 ];
 
-const systemPrompt = `You are Ben, the AI at the heart of BenSimple. — a platform built to take any person's dream, problem, or project and turn it into a simple, step-by-step real plan they can actually execute.
+const systemPrompt = `You are Ben — the core intelligence behind BenSimple. Your entire purpose is to cut through vagueness, extract truth, and build real plans for real people.
 
-Your personality:
-- Warm, direct, no-nonsense. You've seen hard times. You respect hustle.
-- You NEVER use jargon without explaining it immediately.
-- You break everything into the simplest possible next steps.
-- You are encouraging without being a cheerleader. You deal in facts and real plans.
+## Your philosophy
+Most AI cheerleads. You don't. Most AI accepts vague answers. You don't. Most AI builds plans for the dream version of someone. You build plans for the actual person in front of you.
 
-Your job: Based on the user's intake answers, create a personalized, actionable plan. Structure your response as:
-1. Brief warm acknowledgment (2-3 sentences max)
-2. "Here's what I see:" — plain summary
-3. "Here's your first move:" — ONE specific action today
-4. "Here's your 30-day roadmap:" — 4-6 plain steps
-5. "What Ben can do for you right now:" — 3-5 things you can build/research/write/automate immediately
-6. End with: "What do you want to tackle first?"
+You operate on the ROLE framework:
+- R (Reality): Their actual current situation — not the idealized version
+- O (Outcome): What success truly looks like, specifically — not "I want to be successful"
+- L (Limitations): What is genuinely in the way — time, money, skills, fear, history
+- E (Execution): How they actually work and what they'll actually follow through on
 
-Keep it real. Keep it simple.`;
+## Your rules
+1. NEVER accept vague answers. If someone says "make more money," ask: how much, by when, doing what, starting from where?
+2. NEVER ask compound questions. ONE question at a time, always.
+3. NEVER cheerleade. "That's a great idea!" is banned. Deal in facts.
+4. NEVER use jargon without defining it immediately after.
+5. ALWAYS name the real obstacle, even if the user hasn't named it themselves.
+6. ALWAYS adapt the plan to how the person actually works, not how they wish they worked.
+7. If an answer is vague, reflect it back and ask for specifics before moving on.
+
+## Your voice
+Warm but direct. Like the smartest, most honest friend someone has ever had — one who actually follows through, doesn't waste their time, and tells them the truth even when it's uncomfortable. Think less corporate coach, more experienced mentor who's seen hard times and respects hustle.
+
+## How you build the plan
+Once you have R, O, L, and E clearly established from the intake, structure your response as:
+
+**Here's what I see:** (2-3 sentences — the honest baseline, what's real)
+
+**Here's your first move:** (ONE specific action they can take TODAY — not a list, one thing)
+
+**Here's your 30-day roadmap:** (4-6 plain-language steps, realistic for their actual situation)
+
+**What Ben can do for you right now:** (3-5 specific things you can build, research, write, or automate immediately)
+
+**What do you want to tackle first?**
+
+## What makes you different
+You don't just answer questions — you understand people. The intake isn't a form. It's a guided conversation that extracts what someone actually needs, even when they can't articulate it themselves. You ask follow-up questions if an answer is vague. You reflect back what you hear. You name what's underneath what they're saying.
+
+The goal: by the time you give a plan, you know this person better than most people who've met them in real life.`;
 
 function renderMarkdown(text) {
   const lines = text.split("\n");
@@ -156,28 +213,27 @@ export default function BenApp() {
   };
 
   const runIntake = async (ans) => {
-    const userContent = "Here are my intake answers:\n\n" +
-      "Dream/Project/Problem: " + ans.dream + "\n" +
-      "Background: " + ans.background + "\n" +
-      "Current Financial Resources: " + ans.resources_now + "\n" +
-      "Future Financial Resources: " + ans.resources_future + "\n" +
-      "Devices & Platforms Available: " + ans.tools + "\n" +
-      "Time & Effort Willing to Spend: " + ans.effort + "\n" +
-      "End Goal: " + ans.endgoal + "\n" +
-      "How Much I've Already Planned: " + ans.vision + "\n\n" +
-      "Based on all of this, give me my personalized plan.";
+    const userContent = "Here is everything I've told you about myself and what I'm working on:\n\n" +
+      "What's actually going on in my life right now:\n" + ans.reality + "\n\n" +
+      "What I'm trying to build, fix, or change:\n" + ans.dream + "\n\n" +
+      "What success actually looks like to me:\n" + ans.outcome + "\n\n" +
+      "What's actually in the way:\n" + ans.limitations + "\n\n" +
+      "What I have to work with right now:\n" + ans.resources + "\n\n" +
+      "How I actually work best:\n" + ans.execution + "\n\n" +
+      "How much I've already thought this through:\n" + ans.vision + "\n\n" +
+      "Now give me my real plan. Don't sugarcoat it. I want the truth and I want to know exactly what to do.";
 
     const { data: project, error: projectError } = await supabase
       .from("projects")
       .insert({
         user_id: user.id,
         dream: ans.dream,
-        background: ans.background,
-        resources_now: ans.resources_now,
-        resources_future: ans.resources_future,
-        tools: ans.tools,
-        effort: ans.effort,
-        endgoal: ans.endgoal,
+        background: ans.reality,
+        resources_now: ans.resources,
+        resources_future: ans.resources,
+        tools: ans.execution,
+        effort: ans.execution,
+        endgoal: ans.outcome,
         vision: ans.vision,
       })
       .select()
@@ -292,7 +348,7 @@ export default function BenApp() {
               <div style={{ fontSize: 15.5, lineHeight: 1.75, whiteSpace: "pre-line", color: "rgba(255,255,255,0.9)" }}>{INTRO}</div>
             </div>
             <button onClick={() => setPhase("intake")} style={{ width: "100%", padding: "14px", fontSize: 15.5, cursor: "pointer", fontWeight: 700, background: "linear-gradient(90deg, #6366f1, #a855f7)", color: "#fff", border: "none", borderRadius: 999, boxShadow: "0 0 30px rgba(168,85,247,0.35)" }}>
-              Let's go
+              Let's get into it
             </button>
           </div>
         )}
@@ -309,12 +365,15 @@ export default function BenApp() {
               </div>
             </div>
             <div style={{ background: "rgba(255,255,255,0.05)", border: "1px solid rgba(255,255,255,0.1)", borderRadius: 20, padding: "1.75rem" }}>
-              <p style={{ fontSize: 16, fontWeight: 700, marginBottom: 14, lineHeight: 1.5 }}>{QUESTIONS[currentQ].label}</p>
+              <div style={{ display: "flex", gap: 12, alignItems: "flex-start", marginBottom: 16 }}>
+                <div style={{ width: 34, height: 34, borderRadius: "50%", background: "linear-gradient(135deg, #6366f1, #a855f7)", display: "flex", alignItems: "center", justifyContent: "center", fontSize: 14, fontWeight: 700, flexShrink: 0 }}>B</div>
+                <p style={{ fontSize: 16, fontWeight: 700, marginBottom: 0, lineHeight: 1.5, margin: 0 }}>{QUESTIONS[currentQ].label}</p>
+              </div>
               <textarea
                 value={inputVal}
                 onChange={(e) => setInputVal(e.target.value)}
                 placeholder={QUESTIONS[currentQ].placeholder}
-                rows={4}
+                rows={5}
                 style={{ width: "100%", resize: "vertical", fontSize: 14.5, padding: "12px 14px", boxSizing: "border-box", borderRadius: 12, border: "1px solid rgba(255,255,255,0.15)", background: "rgba(0,0,0,0.35)", color: "#fff", lineHeight: 1.6 }}
                 autoFocus
               />
@@ -331,7 +390,7 @@ export default function BenApp() {
           <div style={{ textAlign: "center", padding: "4rem 1rem" }}>
             <div style={{ width: 46, height: 46, borderRadius: "50%", background: "linear-gradient(135deg, #6366f1, #a855f7)", display: "flex", alignItems: "center", justifyContent: "center", fontSize: 19, fontWeight: 700, margin: "0 auto 20px", boxShadow: "0 0 30px rgba(168,85,247,0.5)" }}>B</div>
             <p style={{ fontSize: 17, fontWeight: 700 }}>Ben is working on your plan...</p>
-            <p style={{ fontSize: 14, color: "rgba(255,255,255,0.5)", marginTop: 6 }}>This takes about 10 seconds.</p>
+            <p style={{ fontSize: 14, color: "rgba(255,255,255,0.5)", marginTop: 6 }}>Reading everything you wrote. Building something real.</p>
           </div>
         )}
 
@@ -369,7 +428,7 @@ export default function BenApp() {
                 value={chatInput}
                 onChange={(e) => setChatInput(e.target.value)}
                 onKeyDown={(e) => { if (e.key === "Enter" && !e.shiftKey) { e.preventDefault(); sendChat(); } }}
-                placeholder="Ask Ben anything..."
+                placeholder="Ask Ben anything — he won't sugarcoat it."
                 rows={2}
                 style={{ flex: 1, resize: "none", fontSize: 14.5, padding: "12px 14px", borderRadius: 14, border: "1px solid rgba(255,255,255,0.15)", background: "rgba(0,0,0,0.4)", color: "#fff" }}
               />
