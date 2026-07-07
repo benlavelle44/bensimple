@@ -2,58 +2,58 @@
 import { useState, useRef, useEffect } from "react";
 import { supabase } from "../../lib/supabase";
 
-const INTRO = `Hey. I'm Ben.
+const INTRO = `Hey, I'm Ben.
 
-I'm not going to ask you what your "goals" are or tell you that you can do anything you put your mind to.
+Whatever brought you here today — a dream you can't shake, a problem you're ready to solve, or something you've been sitting on way too long — you're in the right place.
 
-I'm going to ask you real questions. I need real answers. And then I'm going to build you a real plan.
+I'm going to ask you a few questions so I actually understand what you're working with and where you want to go. Then I'll get to work building you a real plan.
 
-No fluff. No cheerleading. Just the truth about where you are, where you want to go, and exactly what to do next.
+No judgment on where you're starting from. No impossible promises about where you'll end up. Just an honest look at what's possible, what it takes, and exactly what to do next.
 
-Ready to get into it?`;
+Let's figure this out together.`;
 
 const QUESTIONS = [
   {
     id: "reality",
-    label: "Start here: What's actually going on in your life right now that made you open this?",
-    placeholder: "Don't give me the polished version. Tell me what's real — what's working, what isn't, what you're stressed about.",
-    followUp: "Give me more. What specifically is happening that made today the day you decided to do something about it?"
+    label: "What's the dream, project, or idea you want to tackle? Tell me everything.",
+    placeholder: "Big or small, fully formed or just a feeling — whatever is on your mind, lay it out. Nothing is too early or too rough.",
+    followUp: "Tell me more — what does this actually look like to you?"
   },
   {
     id: "dream",
-    label: "What are you trying to build, fix, or change? What's the actual thing you want to tackle?",
-    placeholder: "Business idea, money problem, career change, project stuck in your head — whatever it is, lay it out.",
-    followUp: "Be more specific. 'Make more money' isn't a target. What does that actually look like?"
+    label: "What's driving this? What made today the day you decided to do something about it?",
+    placeholder: "It could be a feeling, a situation, a number you need to hit, or just that you're ready. Whatever it is, I want to understand it.",
+    followUp: "What's the real thing underneath this? What changes if you pull this off?"
   },
   {
     id: "outcome",
-    label: "If this works perfectly — what does your life look like? Be specific, not inspirational.",
-    placeholder: "Not 'I want to be successful.' Tell me: what number, what situation, what feeling, what problem goes away?",
-    followUp: "Paint me a picture. What's different on a Tuesday morning if this works?"
+    label: "Paint me a picture — what does success actually look like for you?",
+    placeholder: "Not the Instagram version. The real version. What's different about your day-to-day life when this works?",
+    followUp: "Get specific — what number, what situation, what feeling tells you this worked?"
   },
   {
     id: "limitations",
-    label: "What's actually in the way? Be honest — money, time, skills, fear, something else?",
-    placeholder: "Name the real obstacles. The ones you haven't told anyone. That's what we plan around.",
-    followUp: "What's the biggest one? The thing that's stopped you before or that you're most worried about?"
+    label: "What's in your way right now? Time, money, skills, something else?",
+    placeholder: "Every plan has real constraints. The more honest you are here, the more useful your roadmap will be. Nothing is disqualifying.",
+    followUp: "What's the biggest one? The thing you're most unsure how to get past?"
   },
   {
     id: "resources",
-    label: "What do you actually have to work with right now — money, time, tools, connections, skills?",
-    placeholder: "Give me real numbers and real tools. Not what you wish you had — what you have today.",
-    followUp: "Be more specific. How much time per week, actually? How much money can you actually put in?"
+    label: "What do you have to work with — time, budget, tools, skills, connections?",
+    placeholder: "Tell me what's actually available to you today. Real numbers are more useful than round ones.",
+    followUp: "Roughly how much time per week can you put into this? And what's a realistic budget to start?"
   },
   {
     id: "execution",
-    label: "How do you actually work best? Hand-holding or just a map? Daily steps or big picture first?",
-    placeholder: "What approach have you actually followed through on before? What makes you quit?",
-    followUp: "Think about something you actually finished. What made that work when other things didn't?"
+    label: "How do you work best — step by step guidance or big picture and run?",
+    placeholder: "There's no wrong answer. Knowing how you actually operate helps me build a plan you'll follow through on, not just one that looks good.",
+    followUp: "Think about something you actually finished and felt good about. What made that work?"
   },
   {
     id: "vision",
-    label: "How much have you already thought this through? Notes, plans, previous attempts?",
-    placeholder: "Is this a brand new idea, something you've been circling for years, or something you already started and stalled on?",
-    followUp: "What's the furthest you've gotten with this before? What stopped you that time?"
+    label: "How far along is this? Brand new idea, something you've been thinking about, or already started?",
+    placeholder: "Whether this is day one or you've been circling this for years — it all matters. Tell me where you actually are.",
+    followUp: "If you've tried before, what got in the way? That's usually the most useful thing to know."
   },
 ];
 
@@ -78,7 +78,7 @@ You operate on the ROLE framework:
 7. If an answer is vague, reflect it back and ask for specifics before moving on.
 
 ## Your voice
-Warm but direct. Like the smartest, most honest friend someone has ever had — one who actually follows through, doesn't waste their time, and tells them the truth even when it's uncomfortable. Think less corporate coach, more experienced mentor who's seen hard times and respects hustle.
+Warm, capable, and genuinely excited to help. Like the most resourceful friend someone has — one who's seen hard times, respects hustle, doesn't sugarcoat reality, but always leads with "here's what we can do" not "here's what's wrong with you." You deal in hope AND honesty. The sky IS the limit — but you help people figure out what the actual path looks like from where they actually are.
 
 ## How you build the plan
 Once you have R, O, L, and E clearly established from the intake, structure your response as:
@@ -348,7 +348,7 @@ export default function BenApp() {
               <div style={{ fontSize: 15.5, lineHeight: 1.75, whiteSpace: "pre-line", color: "rgba(255,255,255,0.9)" }}>{INTRO}</div>
             </div>
             <button onClick={() => setPhase("intake")} style={{ width: "100%", padding: "14px", fontSize: 15.5, cursor: "pointer", fontWeight: 700, background: "linear-gradient(90deg, #6366f1, #a855f7)", color: "#fff", border: "none", borderRadius: 999, boxShadow: "0 0 30px rgba(168,85,247,0.35)" }}>
-              Let's get into it
+              Let's figure this out
             </button>
           </div>
         )}
@@ -390,7 +390,7 @@ export default function BenApp() {
           <div style={{ textAlign: "center", padding: "4rem 1rem" }}>
             <div style={{ width: 46, height: 46, borderRadius: "50%", background: "linear-gradient(135deg, #6366f1, #a855f7)", display: "flex", alignItems: "center", justifyContent: "center", fontSize: 19, fontWeight: 700, margin: "0 auto 20px", boxShadow: "0 0 30px rgba(168,85,247,0.5)" }}>B</div>
             <p style={{ fontSize: 17, fontWeight: 700 }}>Ben is working on your plan...</p>
-            <p style={{ fontSize: 14, color: "rgba(255,255,255,0.5)", marginTop: 6 }}>Reading everything you wrote. Building something real.</p>
+            <p style={{ fontSize: 14, color: "rgba(255,255,255,0.5)", marginTop: 6 }}>Reading everything. Putting together what's possible and what it takes.</p>
           </div>
         )}
 
