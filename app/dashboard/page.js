@@ -128,6 +128,7 @@ export default function Dashboard() {
   const navItems = [
     { icon: "⌂", label: "Dashboard", href: "/dashboard", active: true },
     { icon: "+", label: "New project", href: "/app", active: false },
+    { icon: "▤", label: "Build a guide", href: "/guide", active: false },
     { icon: "◈", label: "Account", href: "/account", active: false },
   ];
 
