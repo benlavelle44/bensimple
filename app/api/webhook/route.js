@@ -23,6 +23,25 @@ export async function POST(req) {
     const userId = session.client_reference_id;
     const customerId = session.customer;
 
+    // One-time guide credit purchase — separate path, doesn't touch subscription_status
+    if (session.mode === "payment" && session.metadata?.credits) {
+      const creditsPurchased = parseInt(session.metadata.credits, 10) || 0;
+      if (userId && creditsPurchased > 0) {
+        const { data: existing } = await supabaseAdmin
+          .from("profiles")
+          .select("guide_credits")
+          .eq("id", userId)
+          .single();
+        const currentCredits = existing?.guide_credits ?? 0;
+        await supabaseAdmin
+          .from("profiles")
+          .update({ guide_credits: currentCredits + creditsPurchased })
+          .eq("id", userId);
+      }
+      return Response.json({ received: true });
+    }
+
+    // Existing subscription path — unchanged
     let plan = "pro";
     try {
       const lineItems = await stripe.checkout.sessions.listLineItems(session.id);
